@@ -1,4 +1,5 @@
-![Glow Logo](./docs/logo.svg)
+![image](https://github.com/srsapireddy/GLOW-Compiler/assets/32967087/6edc1317-98f6-4d23-b51e-5d543694b166)
+
 
 [![pytorch](https://circleci.com/gh/pytorch/glow.svg?style=shield)](https://circleci.com/gh/pytorch/glow)
 
