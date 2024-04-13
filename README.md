@@ -30,6 +30,7 @@ The design philosophy is described in an [arXiv paper](https://arxiv.org/abs/180
 Guide: https://github.com/pytorch/glow
 
 ## Commands
+### Running example model 
 ```
 ./image-classifier /root/dev/build_/tests/images/mnist/*.png -image-mode=0to1 -m=/root/dev/mnist_model.onnx -model-input-name=input.1 -backend=CPU
 
@@ -45,3 +46,5 @@ cd /root/dev/build_/bin/
 
 ./image-classifier /root/dev/build_/tests/images/mnist/*.png -image-mode=0to1 -m=/root/dev/mnist_model.onnx -model-input-name=input.1 -backend=CPU -dump-ir-after-all-passes -dump-ir-before-all-passes > ir_dump.txt
 ```
+
+
