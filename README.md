@@ -33,7 +33,7 @@ Guide: https://github.com/pytorch/glow
 
 --------------------------------------------------------------------------------------------------------------------------------------------
 
-Glow Compiler Prerequisites:
+### Glow Compiler Prerequisites:
 
 Operating system: Ubuntu 16.04LTS
 
@@ -47,7 +47,7 @@ Total Memory needed: Minimum 150GB(LLVM&GLOW)
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
-Glow Compiler Dependencies:
+### Glow Compiler Dependencies:
 
 LLVM 8.0.1
 
@@ -59,7 +59,7 @@ Pytorch, if GPU is used, needs to install CUDA 10.1 and cuDNN 7.1
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
-Glow Compiler Process
+### Glow Compiler Process
 
 ```
 Step 1: Download the glow repository from the GitHub
@@ -96,14 +96,14 @@ $make install
 ```
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
-Testing Glow:
+### Testing Glow:
 
 A few test programs that use Glow's C++ API are found under the examples/ subdirectory. The mnist, cifar10, fr2en, and ptb programs train and run digit recognition, image classification, and language modeling benchmarks, respectively.
-To run these programs, build Glow in Release mode, then run the following commands to download the cifar10, mnist and ptb databases.
+To run these programs, build Glow in Release mode, then run the following commands to download the cifar10, mnist, and ptb databases.
 
 $python ../glow/utils/download_datasets_and_models.py --all-datasets
 
-Now run the examples. Note that the databases should be in the current working directory.
+Now, run the examples. Note that the databases should be in the current working directory.
 
 $./bin/mnist
 
@@ -115,7 +115,7 @@ $./bin/ptb
 
 $./bin/char-rnn
 
-If everything goes well you should see:
+### If everything goes well you should see:
 
 mnist: pictures from the mnist digits database
 
