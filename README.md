@@ -1,9 +1,5 @@
 ![image](https://github.com/srsapireddy/GLOW-Compiler/assets/32967087/6edc1317-98f6-4d23-b51e-5d543694b166)
 
-
-[![pytorch](https://circleci.com/gh/pytorch/glow.svg?style=shield)](https://circleci.com/gh/pytorch/glow)
-
-
 Glow is a machine learning compiler and execution engine for hardware
 accelerators.  It is designed to be used as a backend for high-level machine
 learning frameworks.  The compiler is designed to allow state of the art
