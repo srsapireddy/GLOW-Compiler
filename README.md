@@ -28,3 +28,20 @@ The design philosophy is described in an [arXiv paper](https://arxiv.org/abs/180
 
 ## Installation 
 Guide: https://github.com/pytorch/glow
+
+## Commands
+```
+./image-classifier /root/dev/build_/tests/images/mnist/*.png -image-mode=0to1 -m=/root/dev/mnist_model.onnx -model-input-name=input.1 -backend=CPU
+
+
+./image-classifier /root/dev/build_/tests/images/mnist/*.png -image-mode=0to1 -m=/root/dev/mnist_model.onnx -model-input-name=input.1 -backend=CPU -dump-ir -dump-graph-DAG
+./image-classifier /root/dev/build_/tests/images/mnist/*.png -image-mode=0to1 -m=/root/dev/mnist_model.onnx -model-input-name=input.1 -backend=CPU -dump-graph-DAG=DAG.dot
+dot -Tpng DAG.dot -o DAG.png
+./image-classifier /root/dev/build_/tests/images/mnist/*.png -image-mode=0to1 -m=/root/dev/mnist_model.onnx -model-input-name=input.1 -backend=CPU -dump-dir=/root/dev/build_/bin/dumpDir
+
+cd /root/dev/build_/bin/
+./image-classifier /root/dev/build_/tests/images/mnist/*.png -image-mode=0to1 -m=/root/dev/mnist_model.onnx -model-input-name=input.1 -backend=CPU -dump-ir=1
+
+
+./image-classifier /root/dev/build_/tests/images/mnist/*.png -image-mode=0to1 -m=/root/dev/mnist_model.onnx -model-input-name=input.1 -backend=CPU -dump-ir-after-all-passes -dump-ir-before-all-passes > ir_dump.txt
+```
