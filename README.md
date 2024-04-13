@@ -35,15 +35,15 @@ Guide: https://github.com/pytorch/glow
 
 Glow Compiler Prerequisites:
 
-Operating system : Ubuntu 16.04LTS
+Operating system: Ubuntu 16.04LTS
 
-RAM : Minimum 16GB
+RAM: Minimum 16GB
 
-SWAP MEMORY : Minimum 12GB to 20GB
+SWAP MEMORY: Minimum 12GB to 20GB
 
-Memory Needed : 70GB
+Memory Needed: 70GB
 
-Total Memory needed : Minimum 150GB(LLVM&GLOW)
+Total Memory needed: Minimum 150GB(LLVM&GLOW)
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -55,71 +55,41 @@ Clang 8.0.1
 
 Anaconda 3
 
-`
-
-Pytorch if GPU is used need to install CUDA 10.1 and cuDNN 7.1
+Pytorch, if GPU is used, needs to install CUDA 10.1 and cuDNN 7.1
 
 ------------------------------------------------------------------------------------------------------------------------------------------------
 
 Glow Compiler Process
 
-Step1:
-
-Download glow repository from git hub
+Step 1: Download the glow repository from the GitHub
 
 $git clone pytorch/glow
 
 $cd glow
 
-Step2:
-
-#Glow depends on a few submodules: googletest, onnx, and a library for FP16 conversions.
-
-#To get them, from the glow directory, run:
+Step 2: Glow depends on a few submodules: google test, onyx, and a library for FP16 conversions. To get them from the glow directory, run the following:
 
 $git submodule update --init --recursive
 
-Step3:
-
-#If Protobuf is not installed install it by using shell script
-
-#version should be 2.6.1
-
-#PATH: glow/utils/
-
-#run shell script
+Step 3: If Protobuf is not installed install it by using the shell script, version should be 2.6.1, PATH: glow/utils/, run a shell script
 
 $./install_protobuf.sh
 
-Step4:
-
-#Create a build directory in glow
+Step 4: Create a build directory in glow
 
 $mkdir build
 
-#Change working directory to build
+$cd build # Change working directory to build
 
-$cd build
-
-#Now run cmake in Release mode providing Glow source directory as path
-
-$cmake -DCMAKE_BUILD_TYPE=Release ../
-
-#This will build files into ......( It will take 4 to 8 hours or more based on RAM and SWAP memory)
-
-#if cmake is not installed install it by running following command
+$cmake -DCMAKE_BUILD_TYPE=Release ../ # Now run cmake in Release mode, providing the Glow source directory as the path. This will build files into ......( It will take 4 to 8 hours or more based on RAM and SWAP memory), if cmake is not installed install it by running following command
 
 $sudo apt install cmake
 
-step5:
-
-#run make command to compile the source code
+step 5: Run the make command to compile the source code
 
 $make
 
-Step6:
-
-#run make install to install the library
+Step 6: Run make install to install the library
 
 $make install
 
@@ -127,15 +97,12 @@ $make install
 
 Testing Glow:
 
-#A few test programs that use Glow's C++ API are found under the examples/ subdirectory. The mnist, cifar10, fr2en and ptb programs train and
-
-run digit recognition, image classification and language modeling benchmarks, respectively.
-
-#To run these programs, build Glow in Release mode, then run the following commands to download the cifar10, mnist and ptb databases.
+- A few test programs that use Glow's C++ API are found under the examples/ subdirectory. The mnist, cifar10, fr2en, and ptb programs train and run digit recognition, image classification, and language modeling benchmarks, respectively.
+- To run these programs, build Glow in Release mode, then run the following commands to download the cifar10, mnist and ptb databases.
 
 $python ../glow/utils/download_datasets_and_models.py --all-datasets
 
-#Now run the examples. Note that the databases should be in the current working directory.
+- Now run the examples. Note that the databases should be in the current working directory.
 
 $./bin/mnist
 
@@ -147,7 +114,7 @@ $./bin/ptb
 
 $./bin/char-rnn
 
-#If everything goes well you should see:
+- If everything goes well you should see:
 
 mnist: pictures from the mnist digits database
 
