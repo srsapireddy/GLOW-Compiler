@@ -98,12 +98,12 @@ $make install
 
 Testing Glow:
 
-- A few test programs that use Glow's C++ API are found under the examples/ subdirectory. The mnist, cifar10, fr2en, and ptb programs train and run digit recognition, image classification, and language modeling benchmarks, respectively.
-- To run these programs, build Glow in Release mode, then run the following commands to download the cifar10, mnist and ptb databases.
+A few test programs that use Glow's C++ API are found under the examples/ subdirectory. The mnist, cifar10, fr2en, and ptb programs train and run digit recognition, image classification, and language modeling benchmarks, respectively.
+To run these programs, build Glow in Release mode, then run the following commands to download the cifar10, mnist and ptb databases.
 
 $python ../glow/utils/download_datasets_and_models.py --all-datasets
 
-- Now run the examples. Note that the databases should be in the current working directory.
+Now run the examples. Note that the databases should be in the current working directory.
 
 $./bin/mnist
 
@@ -115,7 +115,7 @@ $./bin/ptb
 
 $./bin/char-rnn
 
-- If everything goes well you should see:
+If everything goes well you should see:
 
 mnist: pictures from the mnist digits database
 
