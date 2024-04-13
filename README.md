@@ -61,6 +61,7 @@ Pytorch, if GPU is used, needs to install CUDA 10.1 and cuDNN 7.1
 
 Glow Compiler Process
 
+```
 Step 1: Download the glow repository from the GitHub
 
 $git clone pytorch/glow
@@ -92,7 +93,7 @@ $make
 Step 6: Run make install to install the library
 
 $make install
-
+```
 -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 Testing Glow:
