@@ -1,0 +1,210 @@
+digraph DAG {
+	rankdir=TB;
+_fc2_Gemm__1_dot[
+	label = "{{<LHS>LHS|<RHS>RHS}|{MatMul\lname : _fc2_Gemm__1_dot\lLHS : float\<1 x 50\>\lRHS : float\<50 x 10\>\lusers : 1\lResult : float\<1 x 10\>\l}|{<Result>Result}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=LavenderBlush1
+penwidth = 2];
+
+_Relu_2[
+	label = "{{<Input>Input}|{Relu\lname : _Relu_2\lInput : float\<1 x 50\>\lusers : 1\lResult : float\<1 x 50\>\l}|{<Result>Result}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=LavenderBlush1
+penwidth = 2];
+
+_fc1_Gemm__1_bias[
+	label = "{{<Batch>Batch|<Slice>Slice}|{BatchedAdd\lname : _fc1_Gemm__1_bias\lBatch : float\<1 x 50\>\lSlice : float\<50\>\lusers : 1\lResult : float\<1 x 50\>\l}|{<Result>Result}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=Wheat1
+penwidth = 2];
+
+_fc1_Gemm__1_dot__1[
+	label = "{{<LHS>LHS|<RHS>RHS}|{MatMul\lname : _fc1_Gemm__1_dot__1\lLHS : float\<1 x 320\>\lRHS : float\<320 x 50\>\lusers : 1\lResult : float\<1 x 50\>\l}|{<Result>Result}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=LavenderBlush1
+penwidth = 2];
+
+_Reshape__1[
+	label = "{{<Input>Input}|{Reshape\lname : _Reshape__1\lInput : float\<1 x 4 x 4 x 20\>\lDims : [1, 320]\lLayout : *\lusers : 1\lResult : float\<1 x 320\>\l}|{<Result>Result}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=Yellow2
+penwidth = 2];
+
+_Relu_1__1[
+	label = "{{<Input>Input}|{Relu\lname : _Relu_1__1\lInput : float\<1 x 4 x 4 x 20\>\lusers : 1\lResult : float\<1 x 4 x 4 x 20\>\l}|{<Result>Result}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=LavenderBlush1
+penwidth = 2];
+
+_MaxPool_1__1[
+	label = "{{<Input>Input}|{MaxPool\lname : _MaxPool_1__1\lInput : float\<1 x 8 x 8 x 20\>\lKernels : [2, 2]\lStrides : [2, 2]\lPads : [0, 0, 0, 0]\lLayout : 0\lusers : 1\lResult : float\<1 x 4 x 4 x 20\>\lArgmax : index32\<1 x 4 x 4 x 20\>\l}|{<Result>Result|<Argmax>Argmax}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=AliceBlue
+penwidth = 2];
+
+_conv2_Conv__2[
+	label = "{{<Input>Input|<Filter>Filter|<Bias>Bias}|{Convolution\lname : _conv2_Conv__2\lInput : float\<1 x 12 x 12 x 10\>\lFilter : float\<20 x 5 x 5 x 10\>\lBias : float\<20\>\lKernels : [5, 5]\lStrides : [1, 1]\lPads : [0, 0, 0, 0]\lGroup : 1\lDilation : [1, 1]\lLayout : NHWC\lFusedActivation : NONE\lFusedActivationArgs : []\lusers : 1\lResult : float\<1 x 8 x 8 x 20\>\l}|{<Result>Result}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=Thistle1
+penwidth = 2];
+
+_Relu__1[
+	label = "{{<Input>Input}|{Relu\lname : _Relu__1\lInput : float\<1 x 12 x 12 x 10\>\lusers : 1\lResult : float\<1 x 12 x 12 x 10\>\l}|{<Result>Result}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=LavenderBlush1
+penwidth = 2];
+
+_MaxPool__1[
+	label = "{{<Input>Input}|{MaxPool\lname : _MaxPool__1\lInput : float\<1 x 24 x 24 x 10\>\lKernels : [2, 2]\lStrides : [2, 2]\lPads : [0, 0, 0, 0]\lLayout : 0\lusers : 1\lResult : float\<1 x 12 x 12 x 10\>\lArgmax : index32\<1 x 12 x 12 x 10\>\l}|{<Result>Result|<Argmax>Argmax}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=AliceBlue
+penwidth = 2];
+
+_conv1_Conv__2[
+	label = "{{<Input>Input|<Filter>Filter|<Bias>Bias}|{Convolution\lname : _conv1_Conv__2\lInput : float\<1 x 28 x 28 x 1\>\lFilter : float\<10 x 5 x 5 x 1\>\lBias : float\<10\>\lKernels : [5, 5]\lStrides : [1, 1]\lPads : [0, 0, 0, 0]\lGroup : 1\lDilation : [1, 1]\lLayout : NHWC\lFusedActivation : NONE\lFusedActivationArgs : []\lusers : 1\lResult : float\<1 x 24 x 24 x 10\>\l}|{<Result>Result}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=Thistle1
+penwidth = 2];
+
+_conv1_Conv__5[
+	label = "{{<Input>Input}|{Reshape\lname : _conv1_Conv__5\lInput : float\<1 x 1 x 28 x 28\>\lDims : [1, 28, 28, 1]\lLayout : NHWC\lusers : 1\lResult : float\<1 x 28 x 28 x 1\>\l}|{<Result>Result}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=Yellow2
+penwidth = 2];
+
+input_1[
+	label = "{{Placeholder\lname : \"input_1\"\llayout : *\loutput : float\<1 x 1 x 28 x 28\>\ltrainable : 0\lstatic : 0\lusers : 1\l}|{<Output>Output}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=MistyRose1
+penwidth = 2];
+
+conv1_weight__1[
+	label = "{{Constant\lname : \"conv1_weight__1\"\llayout : NHWC\loutput : float\<10 x 5 x 5 x 1\>\lusers : 1\l}|{<Output>Output}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=Snow3 color=DeepSkyBlue4
+penwidth = 2];
+
+conv1_bias[
+	label = "{{Constant\lname : \"conv1_bias\"\llayout : *\loutput : float\<10\>\lusers : 1\l}|{<Output>Output}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=Snow3 color=DeepSkyBlue4
+penwidth = 2];
+
+conv2_weight__1[
+	label = "{{Constant\lname : \"conv2_weight__1\"\llayout : NHWC\loutput : float\<20 x 5 x 5 x 10\>\lusers : 1\l}|{<Output>Output}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=Snow3 color=DeepSkyBlue4
+penwidth = 2];
+
+conv2_bias[
+	label = "{{Constant\lname : \"conv2_bias\"\llayout : *\loutput : float\<20\>\lusers : 1\l}|{<Output>Output}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=Snow3 color=DeepSkyBlue4
+penwidth = 2];
+
+fc1_weight__2[
+	label = "{{Constant\lname : \"fc1_weight__2\"\llayout : *\loutput : float\<320 x 50\>\lusers : 1\l}|{<Output>Output}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=Snow3 color=DeepSkyBlue4
+penwidth = 2];
+
+fc1_bias[
+	label = "{{Constant\lname : \"fc1_bias\"\llayout : *\loutput : float\<50\>\lusers : 1\l}|{<Output>Output}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=Snow3 color=DeepSkyBlue4
+penwidth = 2];
+
+fc2_weight__1[
+	label = "{{Constant\lname : \"fc2_weight__1\"\llayout : *\loutput : float\<50 x 10\>\lusers : 1\l}|{<Output>Output}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=Snow3 color=DeepSkyBlue4
+penwidth = 2];
+
+_fc2_Gemm__1_bias[
+	label = "{{<Batch>Batch|<Slice>Slice}|{BatchedAdd\lname : _fc2_Gemm__1_bias\lBatch : float\<1 x 10\>\lSlice : float\<10\>\lusers : 1\lResult : float\<1 x 10\>\l}|{<Result>Result}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=Wheat1
+penwidth = 2];
+
+fc2_bias[
+	label = "{{Constant\lname : \"fc2_bias\"\llayout : *\loutput : float\<10\>\lusers : 1\l}|{<Output>Output}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=Snow3 color=DeepSkyBlue4
+penwidth = 2];
+
+_Softmax_selected[
+	label = "{{Splat\lname : _Softmax_selected\lValue : 0.000000e+00\lusers : 1\lResult : index32\<1 x 1\>\l}|{<Result>Result}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=Khaki1
+penwidth = 2];
+
+_Softmax[
+	label = "{{<Input>Input|<Selected>Selected}|{SoftMax\lname : _Softmax\lInput : float\<1 x 10\>\lSelected : index32\<1 x 1\>\lusers : 1\lResult : float\<1 x 10\>\l}|{<Result>Result}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=MistyRose1
+penwidth = 2];
+
+A24_save[
+	label = "{{<Input>Input|<Output>Output}|{Save\lname : A24_save\lInput : float\<1 x 10\>\lOutput : float\<1 x 10\>\lusers : 0\l}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=PowderBlue
+penwidth = 2];
+
+A24[
+	label = "{{Placeholder\lname : \"A24\"\llayout : *\loutput : float\<1 x 10\>\ltrainable : 0\lstatic : 0\lusers : 1\l}|{<Output>Output}}"
+	shape = "record"
+	style="filled,rounded"
+	fillcolor=MistyRose1
+penwidth = 2];
+
+A24:Output -> A24_save:Output [dir="both"];
+_Softmax:Result -> A24_save:Input;
+_Softmax_selected:Result -> _Softmax:Selected;
+_fc2_Gemm__1_bias:Result -> _Softmax:Input;
+fc2_weight__1:Output -> _fc2_Gemm__1_dot:RHS;
+fc1_bias:Output -> _fc1_Gemm__1_bias:Slice;
+fc1_weight__2:Output -> _fc1_Gemm__1_dot__1:RHS;
+_MaxPool_1__1:Result -> _Relu_1__1:Input;
+_Relu_1__1:Result -> _Reshape__1:Input;
+_conv1_Conv__2:Result -> _MaxPool__1:Input;
+_Reshape__1:Result -> _fc1_Gemm__1_dot__1:LHS;
+conv2_bias:Output -> _conv2_Conv__2:Bias;
+_Relu_2:Result -> _fc2_Gemm__1_dot:LHS;
+_fc1_Gemm__1_bias:Result -> _Relu_2:Input;
+_conv2_Conv__2:Result -> _MaxPool_1__1:Input;
+fc2_bias:Output -> _fc2_Gemm__1_bias:Slice;
+_Relu__1:Result -> _conv2_Conv__2:Input;
+conv1_bias:Output -> _conv1_Conv__2:Bias;
+_fc2_Gemm__1_dot:Result -> _fc2_Gemm__1_bias:Batch;
+_MaxPool__1:Result -> _Relu__1:Input;
+_conv1_Conv__5:Result -> _conv1_Conv__2:Input;
+input_1:Output -> _conv1_Conv__5:Input;
+conv2_weight__1:Output -> _conv2_Conv__2:Filter;
+_fc1_Gemm__1_dot__1:Result -> _fc1_Gemm__1_bias:Batch;
+conv1_weight__1:Output -> _conv1_Conv__2:Filter;
+}

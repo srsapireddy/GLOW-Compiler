@@ -1,0 +1,1586 @@
+Model: /root/dev
+Running 1 thread(s).
+ir before pass PeepholeOptimizations
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 4
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 11
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 23
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 29
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 4
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 11
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 27
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 21
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 0
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 34
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 2
+  1 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 35, @in 4, @out 2
+  2 %_conv1_Conv__5_copy = copy @out %_conv1_Conv__5_res, @in %_conv1_Conv__5_tensorview
+  3 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @out 36, @in 7, @out 4
+  4 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_res, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  5 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 37, @out 7
+  6 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 38, @in 9, @out 7
+  7 %_MaxPool__1 = maxpoolwithargmax @out %_MaxPool__1_res, @in %_conv1_Conv__2_res, @out %_MaxPool__1_argmax { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  8 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 39, @in 11, @out 9
+  9 %_Relu__1 = relu @out %_Relu__1_res, @in %_MaxPool__1_res
+  10 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @out 40, @in 14, @out 11
+  11 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_Relu__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  12 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 41, @out 14
+  13 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 42, @in 16, @out 14
+  14 %_MaxPool_1__1 = maxpoolwithargmax @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res, @out %_MaxPool_1__1_argmax { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  15 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 43, @in 17, @out 16
+  16 %_Relu_1__1 = relu @out %_Relu_1__1_res, @in %_MaxPool_1__1_res
+  17 %_Reshape__1_tensorview = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 19
+  18 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 44, @in 21, @out 19
+  19 %_Reshape__1_copy = copy @out %_Reshape__1_res, @in %_Reshape__1_tensorview
+  20 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 45, @in 23, @out 21
+  21 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_dot__1_res, @in %_Reshape__1_res, @in %fc1_weight__2
+  22 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 46, @in 25, @out 23
+  23 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_dot__1_res, @in %fc1_bias
+  24 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 47, @in 27, @out 25
+  25 %_Relu_2 = relu @out %_Relu_2_res, @in %_fc1_Gemm__1_bias_res
+  26 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 48, @in 29, @out 27
+  27 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_Relu_2_res, @in %fc2_weight__1
+  28 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 49, @in 33, @out 29
+  29 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_bias_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  30 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 50, @out 31
+  31 %_Softmax_selected = splat @out %_Softmax_selected_res { Value: 0.000000e+00}
+  32 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 51, @in 34, @out 33
+  33 %_Softmax = softmax @out %_Softmax_res, @in %_fc2_Gemm__1_bias_res
+  34 %A24_save = copy @out %A24, @in %_Softmax_res
+  35 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  36 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  37 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  38 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  39 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  40 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  41 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  42 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  43 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  44 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  45 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  46 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  47 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  48 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+  49 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  50 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  51 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+}
+ir after pass PeepholeOptimizations
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 4
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 11
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 23
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 29
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 4
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 11
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 27
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 21
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 0
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 34
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 2
+  1 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 35, @in 4, @out 2
+  2 %_conv1_Conv__5_copy = copy @out %_conv1_Conv__5_res, @in %_conv1_Conv__5_tensorview
+  3 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 7, @out 36, @out 4
+  4 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_res, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  5 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 37
+  6 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 7, @out 38, @in 9
+  7 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  8 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 39, @in 11, @out 9
+  9 %_Relu__1 = relu @out %_Relu__1_res, @in %_MaxPool__1_res
+  10 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 14, @out 40, @out 11
+  11 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_Relu__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  12 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 41
+  13 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 14, @out 42, @in 16
+  14 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  15 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 43, @in 17, @out 16
+  16 %_Relu_1__1 = relu @out %_Relu_1__1_res, @in %_MaxPool_1__1_res
+  17 %_Reshape__1_tensorview = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 19
+  18 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 44, @in 21, @out 19
+  19 %_Reshape__1_copy = copy @out %_Reshape__1_res, @in %_Reshape__1_tensorview
+  20 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 45, @in 23, @out 21
+  21 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_dot__1_res, @in %_Reshape__1_res, @in %fc1_weight__2
+  22 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 46, @in 25, @out 23
+  23 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_dot__1_res, @in %fc1_bias
+  24 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 47, @in 27, @out 25
+  25 %_Relu_2 = relu @out %_Relu_2_res, @in %_fc1_Gemm__1_bias_res
+  26 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 48, @in 29, @out 27
+  27 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_Relu_2_res, @in %fc2_weight__1
+  28 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 49, @in 33, @out 29
+  29 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_bias_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  30 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 50, @out 31
+  31 %_Softmax_selected = splat @out %_Softmax_selected_res { Value: 0.000000e+00}
+  32 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 51, @in 34, @out 33
+  33 %_Softmax = softmax @out %_Softmax_res, @in %_fc2_Gemm__1_bias_res
+  34 %A24_save = copy @out %A24, @in %_Softmax_res
+  35 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  36 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  37 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  38 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  39 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  40 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  41 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  42 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  43 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  44 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  45 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  46 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  47 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  48 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+  49 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  50 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  51 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+}
+ir before pass DSE
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 4
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 11
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 23
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 29
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 4
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 11
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 27
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 21
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 0
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 34
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 2
+  1 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 35, @in 4, @out 2
+  2 %_conv1_Conv__5_copy = copy @out %_conv1_Conv__5_res, @in %_conv1_Conv__5_tensorview
+  3 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 7, @out 36, @out 4
+  4 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_res, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  5 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 37
+  6 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 7, @out 38, @in 9
+  7 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  8 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 39, @in 11, @out 9
+  9 %_Relu__1 = relu @out %_Relu__1_res, @in %_MaxPool__1_res
+  10 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 14, @out 40, @out 11
+  11 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_Relu__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  12 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 41
+  13 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 14, @out 42, @in 16
+  14 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  15 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 43, @in 17, @out 16
+  16 %_Relu_1__1 = relu @out %_Relu_1__1_res, @in %_MaxPool_1__1_res
+  17 %_Reshape__1_tensorview = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 19
+  18 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 44, @in 21, @out 19
+  19 %_Reshape__1_copy = copy @out %_Reshape__1_res, @in %_Reshape__1_tensorview
+  20 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 45, @in 23, @out 21
+  21 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_dot__1_res, @in %_Reshape__1_res, @in %fc1_weight__2
+  22 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 46, @in 25, @out 23
+  23 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_dot__1_res, @in %fc1_bias
+  24 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 47, @in 27, @out 25
+  25 %_Relu_2 = relu @out %_Relu_2_res, @in %_fc1_Gemm__1_bias_res
+  26 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 48, @in 29, @out 27
+  27 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_Relu_2_res, @in %fc2_weight__1
+  28 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 49, @in 33, @out 29
+  29 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_bias_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  30 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 50, @out 31
+  31 %_Softmax_selected = splat @out %_Softmax_selected_res { Value: 0.000000e+00}
+  32 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 51, @in 34, @out 33
+  33 %_Softmax = softmax @out %_Softmax_res, @in %_fc2_Gemm__1_bias_res
+  34 %A24_save = copy @out %A24, @in %_Softmax_res
+  35 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  36 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  37 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  38 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  39 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  40 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  41 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  42 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  43 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  44 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  45 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  46 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  47 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  48 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+  49 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  50 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  51 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+}
+ir after pass DSE
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 4
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 11
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 23
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 29
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 4
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 11
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 27
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 21
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 0
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 33
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 2
+  1 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 34, @in 4, @out 2
+  2 %_conv1_Conv__5_copy = copy @out %_conv1_Conv__5_res, @in %_conv1_Conv__5_tensorview
+  3 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 7, @out 35, @out 4
+  4 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_res, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  5 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 36
+  6 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 7, @out 37, @in 9
+  7 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  8 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 38, @in 11, @out 9
+  9 %_Relu__1 = relu @out %_Relu__1_res, @in %_MaxPool__1_res
+  10 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 14, @out 39, @out 11
+  11 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_Relu__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  12 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 40
+  13 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 14, @out 41, @in 16
+  14 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  15 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 42, @in 17, @out 16
+  16 %_Relu_1__1 = relu @out %_Relu_1__1_res, @in %_MaxPool_1__1_res
+  17 %_Reshape__1_tensorview = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 19
+  18 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 43, @in 21, @out 19
+  19 %_Reshape__1_copy = copy @out %_Reshape__1_res, @in %_Reshape__1_tensorview
+  20 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 44, @in 23, @out 21
+  21 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_dot__1_res, @in %_Reshape__1_res, @in %fc1_weight__2
+  22 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 45, @in 25, @out 23
+  23 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_dot__1_res, @in %fc1_bias
+  24 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 46, @in 27, @out 25
+  25 %_Relu_2 = relu @out %_Relu_2_res, @in %_fc1_Gemm__1_bias_res
+  26 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 47, @in 29, @out 27
+  27 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_Relu_2_res, @in %fc2_weight__1
+  28 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 48, @in 32, @out 29
+  29 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_bias_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  30 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 49
+  31 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 50, @in 33, @out 32
+  32 %_Softmax = softmax @out %_Softmax_res, @in %_fc2_Gemm__1_bias_res
+  33 %A24_save = copy @out %A24, @in %_Softmax_res
+  34 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  35 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  36 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  37 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  38 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  39 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  40 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  41 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  42 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  43 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  44 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  45 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  46 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  47 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+  48 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  49 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  50 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+}
+ir before pass OptimizeInserts
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 4
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 11
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 23
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 29
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 4
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 11
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 27
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 21
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 0
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 33
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 2
+  1 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 34, @in 4, @out 2
+  2 %_conv1_Conv__5_copy = copy @out %_conv1_Conv__5_res, @in %_conv1_Conv__5_tensorview
+  3 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 7, @out 35, @out 4
+  4 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_res, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  5 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 36
+  6 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 7, @out 37, @in 9
+  7 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  8 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 38, @in 11, @out 9
+  9 %_Relu__1 = relu @out %_Relu__1_res, @in %_MaxPool__1_res
+  10 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 14, @out 39, @out 11
+  11 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_Relu__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  12 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 40
+  13 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 14, @out 41, @in 16
+  14 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  15 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 42, @in 17, @out 16
+  16 %_Relu_1__1 = relu @out %_Relu_1__1_res, @in %_MaxPool_1__1_res
+  17 %_Reshape__1_tensorview = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 19
+  18 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 43, @in 21, @out 19
+  19 %_Reshape__1_copy = copy @out %_Reshape__1_res, @in %_Reshape__1_tensorview
+  20 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 44, @in 23, @out 21
+  21 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_dot__1_res, @in %_Reshape__1_res, @in %fc1_weight__2
+  22 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 45, @in 25, @out 23
+  23 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_dot__1_res, @in %fc1_bias
+  24 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 46, @in 27, @out 25
+  25 %_Relu_2 = relu @out %_Relu_2_res, @in %_fc1_Gemm__1_bias_res
+  26 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 47, @in 29, @out 27
+  27 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_Relu_2_res, @in %fc2_weight__1
+  28 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 48, @in 32, @out 29
+  29 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_bias_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  30 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 49
+  31 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 50, @in 33, @out 32
+  32 %_Softmax = softmax @out %_Softmax_res, @in %_fc2_Gemm__1_bias_res
+  33 %A24_save = copy @out %A24, @in %_Softmax_res
+  34 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  35 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  36 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  37 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  38 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  39 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  40 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  41 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  42 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  43 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  44 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  45 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  46 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  47 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+  48 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  49 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  50 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+}
+ir after pass OptimizeInserts
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 4
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 11
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 23
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 29
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 4
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 11
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 27
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 21
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 0
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 33
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 2
+  1 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 34, @in 4, @out 2
+  2 %_conv1_Conv__5_copy = copy @out %_conv1_Conv__5_res, @in %_conv1_Conv__5_tensorview
+  3 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 7, @out 35, @out 4
+  4 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_res, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  5 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 36
+  6 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 7, @out 37, @in 9
+  7 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  8 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 38, @in 11, @out 9
+  9 %_Relu__1 = relu @out %_Relu__1_res, @in %_MaxPool__1_res
+  10 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 14, @out 39, @out 11
+  11 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_Relu__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  12 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 40
+  13 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 14, @out 41, @in 16
+  14 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  15 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 42, @in 17, @out 16
+  16 %_Relu_1__1 = relu @out %_Relu_1__1_res, @in %_MaxPool_1__1_res
+  17 %_Reshape__1_tensorview = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 19
+  18 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 43, @in 21, @out 19
+  19 %_Reshape__1_copy = copy @out %_Reshape__1_res, @in %_Reshape__1_tensorview
+  20 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 44, @in 23, @out 21
+  21 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_dot__1_res, @in %_Reshape__1_res, @in %fc1_weight__2
+  22 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 45, @in 25, @out 23
+  23 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_dot__1_res, @in %fc1_bias
+  24 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 46, @in 27, @out 25
+  25 %_Relu_2 = relu @out %_Relu_2_res, @in %_fc1_Gemm__1_bias_res
+  26 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 47, @in 29, @out 27
+  27 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_Relu_2_res, @in %fc2_weight__1
+  28 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 48, @in 32, @out 29
+  29 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_bias_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  30 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 49
+  31 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 50, @in 33, @out 32
+  32 %_Softmax = softmax @out %_Softmax_res, @in %_fc2_Gemm__1_bias_res
+  33 %A24_save = copy @out %A24, @in %_Softmax_res
+  34 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  35 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  36 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  37 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  38 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  39 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  40 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  41 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  42 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  43 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  44 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  45 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  46 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  47 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+  48 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  49 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  50 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+}
+ir before pass OptimizeExtracts
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 4
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 11
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 23
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 29
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 4
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 11
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 27
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 21
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 0
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 33
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 2
+  1 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 34, @in 4, @out 2
+  2 %_conv1_Conv__5_copy = copy @out %_conv1_Conv__5_res, @in %_conv1_Conv__5_tensorview
+  3 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 7, @out 35, @out 4
+  4 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_res, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  5 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 36
+  6 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 7, @out 37, @in 9
+  7 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  8 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 38, @in 11, @out 9
+  9 %_Relu__1 = relu @out %_Relu__1_res, @in %_MaxPool__1_res
+  10 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 14, @out 39, @out 11
+  11 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_Relu__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  12 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 40
+  13 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 14, @out 41, @in 16
+  14 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  15 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 42, @in 17, @out 16
+  16 %_Relu_1__1 = relu @out %_Relu_1__1_res, @in %_MaxPool_1__1_res
+  17 %_Reshape__1_tensorview = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 19
+  18 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 43, @in 21, @out 19
+  19 %_Reshape__1_copy = copy @out %_Reshape__1_res, @in %_Reshape__1_tensorview
+  20 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 44, @in 23, @out 21
+  21 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_dot__1_res, @in %_Reshape__1_res, @in %fc1_weight__2
+  22 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 45, @in 25, @out 23
+  23 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_dot__1_res, @in %fc1_bias
+  24 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 46, @in 27, @out 25
+  25 %_Relu_2 = relu @out %_Relu_2_res, @in %_fc1_Gemm__1_bias_res
+  26 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 47, @in 29, @out 27
+  27 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_Relu_2_res, @in %fc2_weight__1
+  28 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 48, @in 32, @out 29
+  29 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_bias_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  30 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 49
+  31 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 50, @in 33, @out 32
+  32 %_Softmax = softmax @out %_Softmax_res, @in %_fc2_Gemm__1_bias_res
+  33 %A24_save = copy @out %A24, @in %_Softmax_res
+  34 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  35 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  36 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  37 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  38 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  39 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  40 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  41 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  42 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  43 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  44 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  45 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  46 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  47 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+  48 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  49 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  50 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+}
+ir after pass OptimizeExtracts
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 4
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 11
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 23
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 29
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 4
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 11
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 27
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 21
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 0
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 33
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 2
+  1 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 34, @in 4, @out 2
+  2 %_conv1_Conv__5_copy = copy @out %_conv1_Conv__5_res, @in %_conv1_Conv__5_tensorview
+  3 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 7, @out 35, @out 4
+  4 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_res, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  5 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 36
+  6 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 7, @out 37, @in 9
+  7 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  8 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 38, @in 11, @out 9
+  9 %_Relu__1 = relu @out %_Relu__1_res, @in %_MaxPool__1_res
+  10 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 14, @out 39, @out 11
+  11 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_Relu__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  12 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 40
+  13 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 14, @out 41, @in 16
+  14 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  15 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 42, @in 17, @out 16
+  16 %_Relu_1__1 = relu @out %_Relu_1__1_res, @in %_MaxPool_1__1_res
+  17 %_Reshape__1_tensorview = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 19
+  18 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 43, @in 21, @out 19
+  19 %_Reshape__1_copy = copy @out %_Reshape__1_res, @in %_Reshape__1_tensorview
+  20 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 44, @in 23, @out 21
+  21 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_dot__1_res, @in %_Reshape__1_res, @in %fc1_weight__2
+  22 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 45, @in 25, @out 23
+  23 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_dot__1_res, @in %fc1_bias
+  24 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 46, @in 27, @out 25
+  25 %_Relu_2 = relu @out %_Relu_2_res, @in %_fc1_Gemm__1_bias_res
+  26 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 47, @in 29, @out 27
+  27 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_Relu_2_res, @in %fc2_weight__1
+  28 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 48, @in 32, @out 29
+  29 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_bias_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  30 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 49
+  31 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 50, @in 33, @out 32
+  32 %_Softmax = softmax @out %_Softmax_res, @in %_fc2_Gemm__1_bias_res
+  33 %A24_save = copy @out %A24, @in %_Softmax_res
+  34 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  35 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  36 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  37 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  38 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  39 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  40 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  41 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  42 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  43 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  44 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  45 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  46 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  47 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+  48 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  49 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  50 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+}
+ir before pass ShareBuffers
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 4
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 11
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 23
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 29
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 4
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 11
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 27
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 21
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 0
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 33
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 2
+  1 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 34, @in 4, @out 2
+  2 %_conv1_Conv__5_copy = copy @out %_conv1_Conv__5_res, @in %_conv1_Conv__5_tensorview
+  3 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 7, @out 35, @out 4
+  4 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_res, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  5 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 36
+  6 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 7, @out 37, @in 9
+  7 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  8 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 38, @in 11, @out 9
+  9 %_Relu__1 = relu @out %_Relu__1_res, @in %_MaxPool__1_res
+  10 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 14, @out 39, @out 11
+  11 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_Relu__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  12 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 40
+  13 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 14, @out 41, @in 16
+  14 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  15 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 42, @in 17, @out 16
+  16 %_Relu_1__1 = relu @out %_Relu_1__1_res, @in %_MaxPool_1__1_res
+  17 %_Reshape__1_tensorview = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 19
+  18 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 43, @in 21, @out 19
+  19 %_Reshape__1_copy = copy @out %_Reshape__1_res, @in %_Reshape__1_tensorview
+  20 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 44, @in 23, @out 21
+  21 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_dot__1_res, @in %_Reshape__1_res, @in %fc1_weight__2
+  22 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 45, @in 25, @out 23
+  23 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_dot__1_res, @in %fc1_bias
+  24 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 46, @in 27, @out 25
+  25 %_Relu_2 = relu @out %_Relu_2_res, @in %_fc1_Gemm__1_bias_res
+  26 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 47, @in 29, @out 27
+  27 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_Relu_2_res, @in %fc2_weight__1
+  28 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 48, @in 32, @out 29
+  29 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_bias_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  30 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 49
+  31 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 50, @in 33, @out 32
+  32 %_Softmax = softmax @out %_Softmax_res, @in %_fc2_Gemm__1_bias_res
+  33 %A24_save = copy @out %A24, @in %_Softmax_res
+  34 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  35 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  36 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  37 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  38 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  39 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  40 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  41 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  42 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  43 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  44 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  45 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  46 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  47 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+  48 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  49 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  50 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+}
+ir after pass ShareBuffers
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 5
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 15
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 38
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 47
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 5
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 15
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 43
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 36
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 2
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @in 54, @out 52, @out 54
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 1
+  1 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  2 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 5, @out 3, @in 3
+  3 %_conv1_Conv__5_copy = copy @out %_conv1_Conv__5_tensorview, @in %_conv1_Conv__5_tensorview
+  4 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 9, @out 10, @out 5
+  5 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_tensorview, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  6 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 7
+  7 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  8 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @in 15, @out 13, @out 9, @out 16, @in 13
+  9 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  10 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  11 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 12
+  12 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  13 %_Relu__1 = relu @out %_MaxPool__1_res, @in %_MaxPool__1_res
+  14 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 20, @out 21, @out 15
+  15 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_MaxPool__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  16 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  17 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 18
+  18 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  19 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 35, @in 27, @in 28, @out 22, @out 20, @out 37, @in 22
+  20 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  21 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  22 %_Relu_1__1 = relu @out %_MaxPool_1__1_res, @in %_MaxPool_1__1_res
+  23 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 24
+  24 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  25 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 32, @in 26, @out 33
+  26 %_Relu_1__1_res__1 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  27 %_MaxPool_1__1_res__1 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @out 29
+  28 %_Reshape__1_tensorview = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 29
+  29 %_Reshape__1_copy = copy @out %_MaxPool_1__1_res__1, @in %_Reshape__1_tensorview
+  30 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 31
+  31 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  32 %_Relu_1__1_res__2 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  33 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  34 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @in 38, @out 36, @in 43, @out 41, @out 44, @in 41, @out 38
+  35 %_MaxPool_1__1_res__2 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 36
+  36 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_bias_res, @in %_MaxPool_1__1_res__2, @in %fc1_weight__2
+  37 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  38 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res, @in %fc1_bias
+  39 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 40
+  40 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  41 %_Relu_2 = relu @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res
+  42 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @in 52, @out 47, @out 53, @in 47, @out 43
+  43 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_fc1_Gemm__1_bias_res, @in %fc2_weight__1
+  44 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  45 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 46
+  46 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  47 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_dot_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  48 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 49
+  49 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  50 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 51
+  51 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+  52 %_Softmax = softmax @out %A24, @in %_fc2_Gemm__1_dot_res
+  53 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+  54 %A24_save = copy @out %A24, @in %A24
+}
+ir before pass PeepholeOptimizations
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 5
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 15
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 38
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 47
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 5
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 15
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 43
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 36
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 2
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @in 54, @out 52, @out 54
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 1
+  1 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  2 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 5, @out 3, @in 3
+  3 %_conv1_Conv__5_copy = copy @out %_conv1_Conv__5_tensorview, @in %_conv1_Conv__5_tensorview
+  4 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 9, @out 10, @out 5
+  5 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_tensorview, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  6 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 7
+  7 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  8 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @in 15, @out 13, @out 9, @out 16, @in 13
+  9 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  10 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  11 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 12
+  12 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  13 %_Relu__1 = relu @out %_MaxPool__1_res, @in %_MaxPool__1_res
+  14 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 20, @out 21, @out 15
+  15 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_MaxPool__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  16 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  17 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 18
+  18 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  19 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 35, @in 27, @in 28, @out 22, @out 20, @out 37, @in 22
+  20 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  21 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  22 %_Relu_1__1 = relu @out %_MaxPool_1__1_res, @in %_MaxPool_1__1_res
+  23 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 24
+  24 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  25 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 32, @in 26, @out 33
+  26 %_Relu_1__1_res__1 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  27 %_MaxPool_1__1_res__1 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @out 29
+  28 %_Reshape__1_tensorview = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 29
+  29 %_Reshape__1_copy = copy @out %_MaxPool_1__1_res__1, @in %_Reshape__1_tensorview
+  30 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 31
+  31 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  32 %_Relu_1__1_res__2 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  33 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  34 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @in 38, @out 36, @in 43, @out 41, @out 44, @in 41, @out 38
+  35 %_MaxPool_1__1_res__2 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 36
+  36 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_bias_res, @in %_MaxPool_1__1_res__2, @in %fc1_weight__2
+  37 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  38 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res, @in %fc1_bias
+  39 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 40
+  40 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  41 %_Relu_2 = relu @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res
+  42 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @in 52, @out 47, @out 53, @in 47, @out 43
+  43 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_fc1_Gemm__1_bias_res, @in %fc2_weight__1
+  44 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  45 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 46
+  46 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  47 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_dot_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  48 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 49
+  49 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  50 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 51
+  51 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+  52 %_Softmax = softmax @out %A24, @in %_fc2_Gemm__1_dot_res
+  53 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+  54 %A24_save = copy @out %A24, @in %A24
+}
+ir after pass PeepholeOptimizations
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 4
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 14
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 36
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 45
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 4
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 14
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 41
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 34
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 2
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 50
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 1
+  1 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  2 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 4
+  3 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 8, @out 9, @out 4
+  4 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_tensorview, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  5 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 6
+  6 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  7 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @in 14, @out 12, @out 8, @out 15, @in 12
+  8 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  9 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  10 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 11
+  11 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  12 %_Relu__1 = relu @out %_MaxPool__1_res, @in %_MaxPool__1_res
+  13 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 19, @out 20, @out 14
+  14 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_MaxPool__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  15 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  16 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 17
+  17 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  18 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 33, @in 26, @in 27, @out 21, @out 19, @out 35, @in 21
+  19 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  20 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  21 %_Relu_1__1 = relu @out %_MaxPool_1__1_res, @in %_MaxPool_1__1_res
+  22 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 23
+  23 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  24 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 30, @in 25, @out 31
+  25 %_Relu_1__1_res__1 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  26 %_MaxPool_1__1_res__1 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  27 %_Reshape__1_tensorview = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  28 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 29
+  29 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  30 %_Relu_1__1_res__2 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  31 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  32 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @in 36, @out 34, @in 41, @out 39, @out 42, @in 39, @out 36
+  33 %_MaxPool_1__1_res__2 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 34
+  34 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_bias_res, @in %_MaxPool_1__1_res__2, @in %fc1_weight__2
+  35 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  36 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res, @in %fc1_bias
+  37 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 38
+  38 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  39 %_Relu_2 = relu @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res
+  40 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @in 50, @out 45, @out 51, @in 45, @out 41
+  41 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_fc1_Gemm__1_bias_res, @in %fc2_weight__1
+  42 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  43 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 44
+  44 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  45 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_dot_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  46 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 47
+  47 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  48 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 49
+  49 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+  50 %_Softmax = softmax @out %A24, @in %_fc2_Gemm__1_dot_res
+  51 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+}
+ir before pass HoistDealloc
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 4
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 14
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 36
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 45
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 4
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 14
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 41
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 34
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 2
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 50
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 1
+  1 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  2 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 4
+  3 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 8, @out 9, @out 4
+  4 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_tensorview, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  5 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 6
+  6 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  7 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @in 14, @out 12, @out 8, @out 15, @in 12
+  8 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  9 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  10 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 11
+  11 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  12 %_Relu__1 = relu @out %_MaxPool__1_res, @in %_MaxPool__1_res
+  13 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 19, @out 20, @out 14
+  14 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_MaxPool__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  15 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  16 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 17
+  17 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  18 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 33, @in 26, @in 27, @out 21, @out 19, @out 35, @in 21
+  19 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  20 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  21 %_Relu_1__1 = relu @out %_MaxPool_1__1_res, @in %_MaxPool_1__1_res
+  22 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 23
+  23 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  24 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 30, @in 25, @out 31
+  25 %_Relu_1__1_res__1 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  26 %_MaxPool_1__1_res__1 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  27 %_Reshape__1_tensorview = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  28 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 29
+  29 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  30 %_Relu_1__1_res__2 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  31 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  32 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @in 36, @out 34, @in 41, @out 39, @out 42, @in 39, @out 36
+  33 %_MaxPool_1__1_res__2 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 34
+  34 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_bias_res, @in %_MaxPool_1__1_res__2, @in %fc1_weight__2
+  35 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  36 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res, @in %fc1_bias
+  37 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 38
+  38 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  39 %_Relu_2 = relu @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res
+  40 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @in 50, @out 45, @out 51, @in 45, @out 41
+  41 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_fc1_Gemm__1_bias_res, @in %fc2_weight__1
+  42 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  43 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 44
+  44 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  45 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_dot_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  46 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 47
+  47 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  48 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 49
+  49 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+  50 %_Softmax = softmax @out %A24, @in %_fc2_Gemm__1_dot_res
+  51 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+}
+ir after pass HoistDealloc
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 4
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 14
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 36
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 45
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 4
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 14
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 41
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 34
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 2
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 50
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 1
+  1 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  2 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 4
+  3 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 8, @out 9, @out 4
+  4 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_tensorview, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  5 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 6
+  6 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  7 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @in 14, @out 12, @out 8, @out 15, @in 12
+  8 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  9 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  10 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 11
+  11 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  12 %_Relu__1 = relu @out %_MaxPool__1_res, @in %_MaxPool__1_res
+  13 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 19, @out 20, @out 14
+  14 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_MaxPool__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  15 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  16 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 17
+  17 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  18 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 33, @in 26, @in 27, @out 21, @out 19, @out 35, @in 21
+  19 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  20 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  21 %_Relu_1__1 = relu @out %_MaxPool_1__1_res, @in %_MaxPool_1__1_res
+  22 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 23
+  23 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  24 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 30, @in 25, @out 31
+  25 %_Relu_1__1_res__1 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  26 %_MaxPool_1__1_res__1 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  27 %_Reshape__1_tensorview = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  28 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 29
+  29 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  30 %_Relu_1__1_res__2 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  31 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  32 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @in 36, @out 34, @in 41, @out 39, @out 42, @in 39, @out 36
+  33 %_MaxPool_1__1_res__2 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 34
+  34 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_bias_res, @in %_MaxPool_1__1_res__2, @in %fc1_weight__2
+  35 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  36 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res, @in %fc1_bias
+  37 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 38
+  38 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  39 %_Relu_2 = relu @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res
+  40 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @in 50, @out 45, @out 51, @in 45, @out 41
+  41 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_fc1_Gemm__1_bias_res, @in %fc2_weight__1
+  42 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  43 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 44
+  44 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  45 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_dot_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  46 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 47
+  47 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  48 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 49
+  49 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+  50 %_Softmax = softmax @out %A24, @in %_fc2_Gemm__1_dot_res
+  51 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+}
+ir before pass SinkAllocas
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 4
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 14
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 36
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 45
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 4
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 14
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 41
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 34
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 2
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 50
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 1
+  1 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  2 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 4
+  3 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 8, @out 9, @out 4
+  4 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_tensorview, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  5 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 6
+  6 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  7 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @in 14, @out 12, @out 8, @out 15, @in 12
+  8 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  9 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  10 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 11
+  11 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  12 %_Relu__1 = relu @out %_MaxPool__1_res, @in %_MaxPool__1_res
+  13 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 19, @out 20, @out 14
+  14 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_MaxPool__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  15 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  16 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 17
+  17 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  18 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 33, @in 26, @in 27, @out 21, @out 19, @out 35, @in 21
+  19 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  20 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  21 %_Relu_1__1 = relu @out %_MaxPool_1__1_res, @in %_MaxPool_1__1_res
+  22 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 23
+  23 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  24 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 30, @in 25, @out 31
+  25 %_Relu_1__1_res__1 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  26 %_MaxPool_1__1_res__1 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  27 %_Reshape__1_tensorview = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  28 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 29
+  29 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  30 %_Relu_1__1_res__2 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  31 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  32 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @in 36, @out 34, @in 41, @out 39, @out 42, @in 39, @out 36
+  33 %_MaxPool_1__1_res__2 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 34
+  34 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_bias_res, @in %_MaxPool_1__1_res__2, @in %fc1_weight__2
+  35 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  36 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res, @in %fc1_bias
+  37 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 38
+  38 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  39 %_Relu_2 = relu @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res
+  40 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @in 50, @out 45, @out 51, @in 45, @out 41
+  41 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_fc1_Gemm__1_bias_res, @in %fc2_weight__1
+  42 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  43 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 44
+  44 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  45 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_dot_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  46 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 47
+  47 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  48 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 49
+  49 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+  50 %_Softmax = softmax @out %A24, @in %_fc2_Gemm__1_dot_res
+  51 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+}
+ir after pass SinkAllocas
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 4
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 14
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 36
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 45
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 4
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 14
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 41
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 34
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 2
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 50
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 1
+  1 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  2 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 4
+  3 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 8, @out 9, @out 4
+  4 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_tensorview, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  5 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 6
+  6 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  7 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @in 14, @out 12, @out 8, @out 15, @in 12
+  8 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  9 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  10 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 11
+  11 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  12 %_Relu__1 = relu @out %_MaxPool__1_res, @in %_MaxPool__1_res
+  13 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 19, @out 20, @out 14
+  14 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_MaxPool__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  15 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  16 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 17
+  17 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  18 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 32, @in 26, @in 27, @out 21, @out 19, @out 35, @in 21
+  19 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  20 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  21 %_Relu_1__1 = relu @out %_MaxPool_1__1_res, @in %_MaxPool_1__1_res
+  22 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 23
+  23 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  24 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 30, @in 25, @out 31
+  25 %_Relu_1__1_res__1 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  26 %_MaxPool_1__1_res__1 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  27 %_Reshape__1_tensorview = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  28 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 29
+  29 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  30 %_Relu_1__1_res__2 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  31 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  32 %_MaxPool_1__1_res__2 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 34
+  33 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @in 36, @out 34, @in 41, @out 39, @out 42, @in 39, @out 36
+  34 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_bias_res, @in %_MaxPool_1__1_res__2, @in %fc1_weight__2
+  35 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  36 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res, @in %fc1_bias
+  37 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 38
+  38 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  39 %_Relu_2 = relu @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res
+  40 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @in 50, @out 45, @out 51, @in 45, @out 41
+  41 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_fc1_Gemm__1_bias_res, @in %fc2_weight__1
+  42 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  43 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 44
+  44 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  45 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_dot_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  46 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 47
+  47 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  48 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 49
+  49 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+  50 %_Softmax = softmax @out %A24, @in %_fc2_Gemm__1_dot_res
+  51 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+}
+ir before pass DSE
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 4
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 14
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 36
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 45
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 4
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 14
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 41
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 34
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 2
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 50
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 1
+  1 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  2 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 4
+  3 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 8, @out 9, @out 4
+  4 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_tensorview, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  5 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 6
+  6 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  7 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @in 14, @out 12, @out 8, @out 15, @in 12
+  8 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  9 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  10 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 11
+  11 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  12 %_Relu__1 = relu @out %_MaxPool__1_res, @in %_MaxPool__1_res
+  13 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 19, @out 20, @out 14
+  14 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_MaxPool__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  15 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  16 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 17
+  17 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  18 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 32, @in 26, @in 27, @out 21, @out 19, @out 35, @in 21
+  19 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  20 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  21 %_Relu_1__1 = relu @out %_MaxPool_1__1_res, @in %_MaxPool_1__1_res
+  22 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 23
+  23 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  24 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 30, @in 25, @out 31
+  25 %_Relu_1__1_res__1 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  26 %_MaxPool_1__1_res__1 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  27 %_Reshape__1_tensorview = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  28 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 29
+  29 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  30 %_Relu_1__1_res__2 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  31 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  32 %_MaxPool_1__1_res__2 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 34
+  33 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @in 36, @out 34, @in 41, @out 39, @out 42, @in 39, @out 36
+  34 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_bias_res, @in %_MaxPool_1__1_res__2, @in %fc1_weight__2
+  35 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  36 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res, @in %fc1_bias
+  37 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 38
+  38 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  39 %_Relu_2 = relu @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res
+  40 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @in 50, @out 45, @out 51, @in 45, @out 41
+  41 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_fc1_Gemm__1_bias_res, @in %fc2_weight__1
+  42 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  43 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 44
+  44 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  45 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_dot_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  46 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 47
+  47 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  48 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 49
+  49 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+  50 %_Softmax = softmax @out %A24, @in %_fc2_Gemm__1_dot_res
+  51 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+}
+ir after pass DSE
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 4
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 14
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 36
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 45
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 4
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 14
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 41
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 34
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 2
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 50
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 1
+  1 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  2 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 4
+  3 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 8, @out 9, @out 4
+  4 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_tensorview, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  5 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 6
+  6 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  7 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @in 14, @out 12, @out 8, @out 15, @in 12
+  8 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  9 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  10 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 11
+  11 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  12 %_Relu__1 = relu @out %_MaxPool__1_res, @in %_MaxPool__1_res
+  13 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 19, @out 20, @out 14
+  14 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_MaxPool__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  15 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  16 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 17
+  17 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  18 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 32, @in 26, @in 27, @out 21, @out 19, @out 35, @in 21
+  19 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  20 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  21 %_Relu_1__1 = relu @out %_MaxPool_1__1_res, @in %_MaxPool_1__1_res
+  22 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 23
+  23 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  24 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 30, @in 25, @out 31
+  25 %_Relu_1__1_res__1 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  26 %_MaxPool_1__1_res__1 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  27 %_Reshape__1_tensorview = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  28 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 29
+  29 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  30 %_Relu_1__1_res__2 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  31 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  32 %_MaxPool_1__1_res__2 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 34
+  33 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @in 36, @out 34, @in 41, @out 39, @out 42, @in 39, @out 36
+  34 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_bias_res, @in %_MaxPool_1__1_res__2, @in %fc1_weight__2
+  35 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  36 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res, @in %fc1_bias
+  37 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 38
+  38 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  39 %_Relu_2 = relu @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res
+  40 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @in 50, @out 45, @out 51, @in 45, @out 41
+  41 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_fc1_Gemm__1_bias_res, @in %fc2_weight__1
+  42 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  43 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 44
+  44 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  45 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_dot_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  46 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 47
+  47 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  48 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 49
+  49 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+  50 %_Softmax = softmax @out %A24, @in %_fc2_Gemm__1_dot_res
+  51 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+}
+ir before pass DeleteDeadAllocs
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 4
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 14
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 36
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 45
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 4
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 14
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 41
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 34
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 2
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 50
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_res = allocactivation  { Ty: float<1 x 28 x 28 x 1>} // size: 3136 // Users: @out 1
+  1 %dealloc__conv1_Conv__5_res = deallocactivation @out %_conv1_Conv__5_res // size: 3136
+  2 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 4
+  3 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 8, @out 9, @out 4
+  4 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_tensorview, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  5 %_MaxPool__1_argmax = allocactivation  { Ty: index32<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 6
+  6 %dealloc__MaxPool__1_argmax = deallocactivation @out %_MaxPool__1_argmax // size: 5760
+  7 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @in 14, @out 12, @out 8, @out 15, @in 12
+  8 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  9 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  10 %_Relu__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @out 11
+  11 %dealloc__Relu__1_res = deallocactivation @out %_Relu__1_res // size: 5760
+  12 %_Relu__1 = relu @out %_MaxPool__1_res, @in %_MaxPool__1_res
+  13 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 19, @out 20, @out 14
+  14 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_MaxPool__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  15 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  16 %_MaxPool_1__1_argmax = allocactivation  { Ty: index32<1 x 4 x 4 x 20>} // size: 1280 // Users: @out 17
+  17 %dealloc__MaxPool_1__1_argmax = deallocactivation @out %_MaxPool_1__1_argmax // size: 1280
+  18 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 32, @in 26, @in 27, @out 21, @out 19, @out 35, @in 21
+  19 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  20 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  21 %_Relu_1__1 = relu @out %_MaxPool_1__1_res, @in %_MaxPool_1__1_res
+  22 %_Reshape__1_res = allocactivation  { Ty: float<1 x 320>} // size: 1280 // Users: @out 23
+  23 %dealloc__Reshape__1_res = deallocactivation @out %_Reshape__1_res // size: 1280
+  24 %_Relu_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 30, @in 25, @out 31
+  25 %_Relu_1__1_res__1 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  26 %_MaxPool_1__1_res__1 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  27 %_Reshape__1_tensorview = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  28 %_fc1_Gemm__1_dot__1_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 29
+  29 %dealloc__fc1_Gemm__1_dot__1_res = deallocactivation @out %_fc1_Gemm__1_dot__1_res // size: 200
+  30 %_Relu_1__1_res__2 = tensorview @in %_Relu_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]}
+  31 %dealloc__Relu_1__1_res = deallocactivation @out %_Relu_1__1_res // size: 1280
+  32 %_MaxPool_1__1_res__2 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 34
+  33 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @in 36, @out 34, @in 41, @out 39, @out 42, @in 39, @out 36
+  34 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_bias_res, @in %_MaxPool_1__1_res__2, @in %fc1_weight__2
+  35 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  36 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res, @in %fc1_bias
+  37 %_Relu_2_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @out 38
+  38 %dealloc__Relu_2_res = deallocactivation @out %_Relu_2_res // size: 200
+  39 %_Relu_2 = relu @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res
+  40 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @in 50, @out 45, @out 51, @in 45, @out 41
+  41 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_fc1_Gemm__1_bias_res, @in %fc2_weight__1
+  42 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  43 %_fc2_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 44
+  44 %dealloc__fc2_Gemm__1_bias_res = deallocactivation @out %_fc2_Gemm__1_bias_res // size: 40
+  45 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_dot_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  46 %_Softmax_selected_res = allocactivation  { Ty: index32<1 x 1>} // size: 4 // Users: @out 47
+  47 %dealloc__Softmax_selected_res = deallocactivation @out %_Softmax_selected_res // size: 4
+  48 %_Softmax_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @out 49
+  49 %dealloc__Softmax_res = deallocactivation @out %_Softmax_res // size: 40
+  50 %_Softmax = softmax @out %A24, @in %_fc2_Gemm__1_dot_res
+  51 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+}
+ir after pass DeleteDeadAllocs
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 2
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 8
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 18
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 23
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 2
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 8
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 21
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 16
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 0
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 24
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 2
+  1 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 4, @out 5, @out 2
+  2 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_tensorview, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  3 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @in 8, @out 6, @out 4, @out 9, @in 6
+  4 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  5 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  6 %_Relu__1 = relu @out %_MaxPool__1_res, @in %_MaxPool__1_res
+  7 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 11, @out 12, @out 8
+  8 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_MaxPool__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  9 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  10 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 14, @out 13, @out 11, @out 17, @in 13
+  11 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  12 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  13 %_Relu_1__1 = relu @out %_MaxPool_1__1_res, @in %_MaxPool_1__1_res
+  14 %_MaxPool_1__1_res__2 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 16
+  15 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @in 18, @out 16, @in 21, @out 19, @out 22, @in 19, @out 18
+  16 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_bias_res, @in %_MaxPool_1__1_res__2, @in %fc1_weight__2
+  17 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  18 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res, @in %fc1_bias
+  19 %_Relu_2 = relu @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res
+  20 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @in 24, @out 23, @out 25, @in 23, @out 21
+  21 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_fc1_Gemm__1_bias_res, @in %fc2_weight__1
+  22 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  23 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_dot_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  24 %_Softmax = softmax @out %A24, @in %_fc2_Gemm__1_dot_res
+  25 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+}
+ir before pass MakeWeightsConst
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 2
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 8
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 18
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 23
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 2
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 8
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 21
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 16
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 0
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 24
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 2
+  1 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 4, @out 5, @out 2
+  2 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_tensorview, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  3 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @in 8, @out 6, @out 4, @out 9, @in 6
+  4 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  5 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  6 %_Relu__1 = relu @out %_MaxPool__1_res, @in %_MaxPool__1_res
+  7 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 11, @out 12, @out 8
+  8 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_MaxPool__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  9 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  10 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 14, @out 13, @out 11, @out 17, @in 13
+  11 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  12 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  13 %_Relu_1__1 = relu @out %_MaxPool_1__1_res, @in %_MaxPool_1__1_res
+  14 %_MaxPool_1__1_res__2 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 16
+  15 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @in 18, @out 16, @in 21, @out 19, @out 22, @in 19, @out 18
+  16 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_bias_res, @in %_MaxPool_1__1_res__2, @in %fc1_weight__2
+  17 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  18 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res, @in %fc1_bias
+  19 %_Relu_2 = relu @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res
+  20 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @in 24, @out 23, @out 25, @in 23, @out 21
+  21 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_fc1_Gemm__1_bias_res, @in %fc2_weight__1
+  22 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  23 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_dot_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  24 %_Softmax = softmax @out %A24, @in %_fc2_Gemm__1_dot_res
+  25 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+}
+ir after pass MakeWeightsConst
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 2
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 8
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 18
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 23
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 2
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 8
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 21
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 16
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 0
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 24
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 2
+  1 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 4, @out 5, @out 2
+  2 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_tensorview, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  3 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @in 8, @out 6, @out 4, @out 9, @in 6
+  4 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  5 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  6 %_Relu__1 = relu @out %_MaxPool__1_res, @in %_MaxPool__1_res
+  7 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 11, @out 12, @out 8
+  8 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_MaxPool__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  9 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  10 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 14, @out 13, @out 11, @out 17, @in 13
+  11 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  12 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  13 %_Relu_1__1 = relu @out %_MaxPool_1__1_res, @in %_MaxPool_1__1_res
+  14 %_MaxPool_1__1_res__2 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 16
+  15 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @in 18, @out 16, @in 21, @out 19, @out 22, @in 19, @out 18
+  16 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_bias_res, @in %_MaxPool_1__1_res__2, @in %fc1_weight__2
+  17 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  18 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res, @in %fc1_bias
+  19 %_Relu_2 = relu @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res
+  20 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @in 24, @out 23, @out 25, @in 23, @out 21
+  21 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_fc1_Gemm__1_bias_res, @in %fc2_weight__1
+  22 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  23 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_dot_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  24 %_Softmax = softmax @out %A24, @in %_fc2_Gemm__1_dot_res
+  25 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+}
+ir before pass IRVerify
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 2
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 8
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 18
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 23
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 2
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 8
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 21
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 16
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 0
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 24
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 2
+  1 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 4, @out 5, @out 2
+  2 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_tensorview, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  3 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @in 8, @out 6, @out 4, @out 9, @in 6
+  4 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  5 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  6 %_Relu__1 = relu @out %_MaxPool__1_res, @in %_MaxPool__1_res
+  7 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 11, @out 12, @out 8
+  8 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_MaxPool__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  9 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  10 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 14, @out 13, @out 11, @out 17, @in 13
+  11 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  12 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  13 %_Relu_1__1 = relu @out %_MaxPool_1__1_res, @in %_MaxPool_1__1_res
+  14 %_MaxPool_1__1_res__2 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 16
+  15 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @in 18, @out 16, @in 21, @out 19, @out 22, @in 19, @out 18
+  16 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_bias_res, @in %_MaxPool_1__1_res__2, @in %fc1_weight__2
+  17 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  18 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res, @in %fc1_bias
+  19 %_Relu_2 = relu @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res
+  20 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @in 24, @out 23, @out 25, @in 23, @out 21
+  21 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_fc1_Gemm__1_bias_res, @in %fc2_weight__1
+  22 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  23 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_dot_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  24 %_Softmax = softmax @out %A24, @in %_fc2_Gemm__1_dot_res
+  25 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+}
+ir after pass IRVerify
+function /root/dev/mnist_model.onnx
+declare {
+  %conv1_bias = WeightVar float<10> const // size: 40 // Users: @in 2
+  %conv2_bias = WeightVar float<20> const // size: 80 // Users: @in 8
+  %fc1_bias = WeightVar float<50> const // size: 200 // Users: @in 18
+  %fc2_bias = WeightVar float<10> const // size: 40 // Users: @in 23
+  %conv1_weight__1 = WeightVar float<10 x 5 x 5 x 1> const // size: 1000 // Users: @in 2
+  %conv2_weight__1 = WeightVar float<20 x 5 x 5 x 10> const // size: 20000 // Users: @in 8
+  %fc2_weight__1 = WeightVar float<50 x 10> const // size: 2000 // Users: @in 21
+  %fc1_weight__2 = WeightVar float<320 x 50> const // size: 64000 // Users: @in 16
+  %input_1 = WeightVar float<1 x 1 x 28 x 28> mutable // size: 3136 // Users: @in 0
+  %A24 = WeightVar float<1 x 10> mutable // size: 40 // Users: @out 24
+
+  ; size = 90536 bytes
+}
+
+code {
+  0 %_conv1_Conv__5_tensorview = tensorview @in %input_1 { Ty: float<1 x 28 x 28 x 1>, Offsets: [0, 0, 0, 0]} // Users: @in 2
+  1 %_conv1_Conv__2_res = allocactivation  { Ty: float<1 x 24 x 24 x 10>} // size: 23040 // Users: @in 4, @out 5, @out 2
+  2 %_conv1_Conv__2 = convolution @out %_conv1_Conv__2_res, @in %_conv1_Conv__5_tensorview, @in %conv1_weight__1, @in %conv1_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  3 %_MaxPool__1_res = allocactivation  { Ty: float<1 x 12 x 12 x 10>} // size: 5760 // Users: @in 8, @out 6, @out 4, @out 9, @in 6
+  4 %_MaxPool__2 = maxpool @out %_MaxPool__1_res, @in %_conv1_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  5 %dealloc__conv1_Conv__2_res = deallocactivation @out %_conv1_Conv__2_res // size: 23040
+  6 %_Relu__1 = relu @out %_MaxPool__1_res, @in %_MaxPool__1_res
+  7 %_conv2_Conv__2_res = allocactivation  { Ty: float<1 x 8 x 8 x 20>} // size: 5120 // Users: @in 11, @out 12, @out 8
+  8 %_conv2_Conv__2 = convolution @out %_conv2_Conv__2_res, @in %_MaxPool__1_res, @in %conv2_weight__1, @in %conv2_bias { Kernels: [5, 5], Strides: [1, 1], Pads: [0, 0, 0, 0], Group: 1, Dilation: [1, 1], Layout: NHWC, FusedActivation: NONE, FusedActivationArgs: []}
+  9 %dealloc__MaxPool__1_res = deallocactivation @out %_MaxPool__1_res // size: 5760
+  10 %_MaxPool_1__1_res = allocactivation  { Ty: float<1 x 4 x 4 x 20>} // size: 1280 // Users: @in 14, @out 13, @out 11, @out 17, @in 13
+  11 %_MaxPool_1__2 = maxpool @out %_MaxPool_1__1_res, @in %_conv2_Conv__2_res { Kernels: [2, 2], Strides: [2, 2], Pads: [0, 0, 0, 0], Layout: 0}
+  12 %dealloc__conv2_Conv__2_res = deallocactivation @out %_conv2_Conv__2_res // size: 5120
+  13 %_Relu_1__1 = relu @out %_MaxPool_1__1_res, @in %_MaxPool_1__1_res
+  14 %_MaxPool_1__1_res__2 = tensorview @in %_MaxPool_1__1_res { Ty: float<1 x 320>, Offsets: [0, 0, 0, 0]} // Users: @in 16
+  15 %_fc1_Gemm__1_bias_res = allocactivation  { Ty: float<1 x 50>} // size: 200 // Users: @in 18, @out 16, @in 21, @out 19, @out 22, @in 19, @out 18
+  16 %_fc1_Gemm__1_dot__1 = matmul @out %_fc1_Gemm__1_bias_res, @in %_MaxPool_1__1_res__2, @in %fc1_weight__2
+  17 %dealloc__MaxPool_1__1_res = deallocactivation @out %_MaxPool_1__1_res // size: 1280
+  18 %_fc1_Gemm__1_bias = batchedadd @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res, @in %fc1_bias
+  19 %_Relu_2 = relu @out %_fc1_Gemm__1_bias_res, @in %_fc1_Gemm__1_bias_res
+  20 %_fc2_Gemm__1_dot_res = allocactivation  { Ty: float<1 x 10>} // size: 40 // Users: @in 24, @out 23, @out 25, @in 23, @out 21
+  21 %_fc2_Gemm__1_dot = matmul @out %_fc2_Gemm__1_dot_res, @in %_fc1_Gemm__1_bias_res, @in %fc2_weight__1
+  22 %dealloc__fc1_Gemm__1_bias_res = deallocactivation @out %_fc1_Gemm__1_bias_res // size: 200
+  23 %_fc2_Gemm__1_bias = batchedadd @out %_fc2_Gemm__1_dot_res, @in %_fc2_Gemm__1_dot_res, @in %fc2_bias
+  24 %_Softmax = softmax @out %A24, @in %_fc2_Gemm__1_dot_res
+  25 %dealloc__fc2_Gemm__1_dot_res = deallocactivation @out %_fc2_Gemm__1_dot_res // size: 40
+}
+ File: /root/dev/build_/tests/images/mnist/0_1009.png	Label-K1: 0 (probability: 0.7243)
+ File: /root/dev/build_/tests/images/mnist/1_1008.png	Label-K1: 1 (probability: 0.4602)
+ File: /root/dev/build_/tests/images/mnist/2_1065.png	Label-K1: 2 (probability: 0.3277)
+ File: /root/dev/build_/tests/images/mnist/3_1020.png	Label-K1: 3 (probability: 0.3899)
+ File: /root/dev/build_/tests/images/mnist/4_1059.png	Label-K1: 4 (probability: 0.3296)
+ File: /root/dev/build_/tests/images/mnist/5_1087.png	Label-K1: 8 (probability: 0.3946)
+ File: /root/dev/build_/tests/images/mnist/6_1099.png	Label-K1: 8 (probability: 0.1615)
+ File: /root/dev/build_/tests/images/mnist/7_1055.png	Label-K1: 7 (probability: 0.4238)
+ File: /root/dev/build_/tests/images/mnist/8_1026.png	Label-K1: 8 (probability: 0.2670)
+ File: /root/dev/build_/tests/images/mnist/9_1088.png	Label-K1: 9 (probability: 0.5076)
