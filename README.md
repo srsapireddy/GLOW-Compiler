@@ -34,17 +34,27 @@ Guide: https://github.com/pytorch/glow
 ```
 ./image-classifier /root/dev/build_/tests/images/mnist/*.png -image-mode=0to1 -m=/root/dev/mnist_model.onnx -model-input-name=input.1 -backend=CPU
 
-
 ./image-classifier /root/dev/build_/tests/images/mnist/*.png -image-mode=0to1 -m=/root/dev/mnist_model.onnx -model-input-name=input.1 -backend=CPU -dump-ir -dump-graph-DAG
+
 ./image-classifier /root/dev/build_/tests/images/mnist/*.png -image-mode=0to1 -m=/root/dev/mnist_model.onnx -model-input-name=input.1 -backend=CPU -dump-graph-DAG=DAG.dot
-dot -Tpng DAG.dot -o DAG.png
+
 ./image-classifier /root/dev/build_/tests/images/mnist/*.png -image-mode=0to1 -m=/root/dev/mnist_model.onnx -model-input-name=input.1 -backend=CPU -dump-dir=/root/dev/build_/bin/dumpDir
 
 cd /root/dev/build_/bin/
 ./image-classifier /root/dev/build_/tests/images/mnist/*.png -image-mode=0to1 -m=/root/dev/mnist_model.onnx -model-input-name=input.1 -backend=CPU -dump-ir=1
 
-
 ./image-classifier /root/dev/build_/tests/images/mnist/*.png -image-mode=0to1 -m=/root/dev/mnist_model.onnx -model-input-name=input.1 -backend=CPU -dump-ir-after-all-passes -dump-ir-before-all-passes > ir_dump.txt
 ```
+### Example Run
+![WhatsApp Image 2024-04-09 at 04 36 43_0763df22](https://github.com/srsapireddy/GLOW-Compiler/assets/32967087/768d7e92-72bf-4d63-b36b-58a55d219c58)
+
+
+### Directed acyclic graph (DAG) of the model 
+```
+dot -Tpng DAG.dot -o DAG.png
+```
+### DAG file contents
+![WhatsApp Image 2024-04-09 at 04 45 29_59dc9a61](https://github.com/srsapireddy/GLOW-Compiler/assets/32967087/6934fba0-b5bb-4a8b-901c-029b2541aadb)
+
 
 
